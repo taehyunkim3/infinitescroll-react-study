@@ -28,7 +28,7 @@ const ContentHeading = styled.div`
 `;
 
 const ContentsContainer = styled.div`
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: ${(props) => (props.grid ? "1fr 1fr" : "1fr")};
   display: grid;
   width: 100%;
   grid-auto-columns: 1fr;
@@ -51,74 +51,83 @@ const MainPage = () => {
   const API_KEY = import.meta.env.VITE_API_KEY;
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
-
-  //
-  const options = {
-    root: null,
-    rootMargin: "0px",
-    threshold: 1.0,
-  };
-  const callback = () => {
-    console.log("관측시작");
-    if (!loading) {
-      onLoadMoreHandler();
-    }
-  };
-  const target = useRef();
-  const observer = new IntersectionObserver(callback, options);
-
+  const [grid, setGrid] = useState(true);
+  //무한스크롤
+  const loader = useRef(null);
   //
   const onLoadMoreHandler = () => {
-    setPage((prev) => prev + 1);
     setLoading(true);
     axios
       .get(
         `https://api.thedogapi.com/v1/images/search?limit=10&api_key=${API_KEY}&page=${page}&order=ASC`
       )
       .then((res) => {
-        console.log(res);
-        return setData([...data, ...res.data]);
+        console.log("axios동기화중");
+        setData((prev) => [...prev, ...res.data]);
+        setPage((prev) => prev + 1);
       })
-      .catch((error) => console.log(error))
-      .finally(() => setLoading(false));
+      .catch((error) => {
+        setLoading(false);
+        console.log(error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   useEffect(() => {
-    axios
-      .get(
-        `https://api.thedogapi.com/v1/images/search?limit=10&api_key=${API_KEY}&page=${page}&order=ASC`
-      )
-      .then((res) => setData(res.data));
+    // Intersection Observer를 설정합니다.
+    let options = {
+      root: null, // viewport를 기준으로 함
+      rootMargin: "20px",
+      threshold: 1.0, // target이 viewport의 100% 경계선을 넘어가면 콜백 실행
+    };
 
-    return () => {};
-  }, []);
+    const observer = new IntersectionObserver(handleObserver, options);
+    if (loader.current) {
+      observer.observe(loader.current);
+    }
+    return () => {
+      if (loader.current) {
+        observer.unobserve(loader.current);
+      }
+    };
+  }, [loading]);
 
   useEffect(() => {
-    if (target.current) observer.observe(target.current);
+    onLoadMoreHandler();
+  }, []);
 
-    return () => {
-      if (target.current) observer.unobserve(target.current);
-    };
-  }, [target]);
+  const handleObserver = (info) => {
+    console.log(info);
+    const target = info[0];
+    if (target.isIntersecting && !loading) {
+      onLoadMoreHandler();
+    }
+  };
 
   return (
     <div>
       <NavBar>✦nube flow</NavBar>
       <ContentHeading>
         <p>Latest Posts</p>
-        <button>Ghance View ♲</button>
+        <button
+          onClick={() => {
+            setGrid(!grid);
+          }}
+        >
+          Ghance View ♲
+        </button>
       </ContentHeading>
-      <ContentsContainer>
+      <ContentsContainer grid={grid ? true : false}>
         {data.map((data) => {
           return <Contents key={data.id} data={data} />;
         })}
-
         {loading ? <MockSet /> : null}
       </ContentsContainer>
-      {!loading ? (
-        <LoadMore ref={target}>scroll down to load more</LoadMore>
-      ) : null}
-      <LoadMore onClick={onLoadMoreHandler}>LoadMore</LoadMore>
+      <LoadMore ref={loader} onClick={onLoadMoreHandler}>
+        {loading ? "로딩중" : ""}
+      </LoadMore>
     </div>
   );
 };

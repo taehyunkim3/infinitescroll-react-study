@@ -1,3 +1,27 @@
+## 난관
+
+1. 15페이지쯤에서 name을 읽을수 없다고 함
+
+- data의 기본값을 설정해줘서, 해당 데이터가 존재하지 않아도 오류가 일어나지 않도록 함.
+
+1. InterSectionObserver 사용 어려움 (진행중)
+1. 코드 스플리팅 필요함.(진행중)
+
+## 시도
+
+1.  스켈레톤 UI사용
+
+### 참고자료
+
+<a href="https://developer.mozilla.org/ko/docs/Web/API/Intersection_Observer_API">MDN Intersection Observer API</a>
+
+<a href="https://velog.io/@yejinh/
+Intersection-Observer%EB%A1%9C-%EB%AC%B4%ED%95%9C-%EC%8A%A4%ED%81%AC%EB%A1%A4-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0">무한스크롤 관련 포스팅</a>
+
+https://velog.io/@tech-hoon/skeleton-ui
+
+---
+
 # 목차
 
 - [목차](#목차)
