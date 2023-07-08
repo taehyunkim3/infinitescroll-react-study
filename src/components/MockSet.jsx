@@ -1,4 +1,5 @@
 import MockContents from "./MockContents";
+import React from "react";
 
 const MockSet = () => {
   return (
@@ -17,4 +18,4 @@ const MockSet = () => {
   );
 };
 
-export default MockSet;
+export default React.memo(MockSet);

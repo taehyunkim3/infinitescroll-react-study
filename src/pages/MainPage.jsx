@@ -3,48 +3,12 @@ import Contents from "../components/Contents";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import MockSet from "../components/MockSet";
-
-const NavBar = styled.div`
-  padding: 1rem 0;
-  font-size: 1.5rem;
-  font-align: left;
-`;
-
-const ContentHeading = styled.div`
-  text-transform: uppercase;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  p {
-    font-size: 4rem;
-  }
-  button {
-    font-size: 0.8rem;
-    border: 1px solid gray;
-    border-radius: 0.5rem;
-    height: 2rem;
-    width: 9rem;
-  }
-`;
-
-const ContentsContainer = styled.div`
-  grid-template-columns: ${(props) => (props.grid ? "1fr 1fr" : "1fr")};
-  display: grid;
-  width: 100%;
-  grid-auto-columns: 1fr;
-  grid-column-gap: 1.5rem;
-  grid-row-gap: 1.5rem;
-  grid-template-rows: auto;
-`;
-
-const LoadMore = styled.h2`
-  width: 100%;
-  font-size: 3rem;
-  cursor: pointer;
-  text-align: center;
-  margin-top: 3rem;
-  margin-bottom: 10rem;
-`;
+import {
+  NavBar,
+  ContentHeading,
+  ContentsContainer,
+  LoadMore,
+} from "../styles/MainPageStyle";
 
 const MainPage = () => {
   const [data, setData] = useState([]);
@@ -55,6 +19,7 @@ const MainPage = () => {
   //무한스크롤
   const loader = useRef(null);
   //
+  //axios
   const onLoadMoreHandler = () => {
     setLoading(true);
     axios
@@ -75,8 +40,13 @@ const MainPage = () => {
       });
   };
 
+  //최초 로드시 작동
   useEffect(() => {
-    // Intersection Observer를 설정합니다.
+    onLoadMoreHandler();
+  }, []);
+
+  useEffect(() => {
+    // Intersection Observer를 설정
     let options = {
       root: null, // viewport를 기준으로 함
       rootMargin: "20px",
@@ -94,12 +64,9 @@ const MainPage = () => {
     };
   }, [loading]);
 
-  useEffect(() => {
-    onLoadMoreHandler();
-  }, []);
-
+  //무한스크롤 감지시 작동.
   const handleObserver = (info) => {
-    console.log(info);
+    console.log(info); //이벤트 정보 출력
     const target = info[0];
     if (target.isIntersecting && !loading) {
       onLoadMoreHandler();

@@ -54,4 +54,4 @@ const MockContents = () => {
   );
 };
 
-export default MockContents;
+export default React.memo(MockContents);
