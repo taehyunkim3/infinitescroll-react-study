@@ -1,7 +1,8 @@
 import { styled } from "styled-components";
 import Contents from "../components/Contents";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
+import MockSet from "../components/MockSet";
 
 const NavBar = styled.div`
   padding: 1rem 0;
@@ -41,21 +42,45 @@ const LoadMore = styled.h2`
   font-size: 3rem;
   cursor: pointer;
   text-align: center;
+  margin-top: 3rem;
+  margin-bottom: 10rem;
 `;
 
 const MainPage = () => {
   const [data, setData] = useState([]);
   const API_KEY = import.meta.env.VITE_API_KEY;
   const [page, setPage] = useState(0);
+  const [loading, setLoading] = useState(false);
 
+  //
+  const options = {
+    root: null,
+    rootMargin: "0px",
+    threshold: 1.0,
+  };
+  const callback = () => {
+    console.log("관측시작");
+    if (!loading) {
+      onLoadMoreHandler();
+    }
+  };
+  const target = useRef();
+  const observer = new IntersectionObserver(callback, options);
+
+  //
   const onLoadMoreHandler = () => {
     setPage((prev) => prev + 1);
-
+    setLoading(true);
     axios
       .get(
         `https://api.thedogapi.com/v1/images/search?limit=10&api_key=${API_KEY}&page=${page}&order=ASC`
       )
-      .then((res) => setData([...data, ...res.data]));
+      .then((res) => {
+        console.log(res);
+        return setData([...data, ...res.data]);
+      })
+      .catch((error) => console.log(error))
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => {
@@ -68,6 +93,14 @@ const MainPage = () => {
     return () => {};
   }, []);
 
+  useEffect(() => {
+    if (target.current) observer.observe(target.current);
+
+    return () => {
+      if (target.current) observer.unobserve(target.current);
+    };
+  }, [target]);
+
   return (
     <div>
       <NavBar>✦nube flow</NavBar>
@@ -76,10 +109,15 @@ const MainPage = () => {
         <button>Ghance View ♲</button>
       </ContentHeading>
       <ContentsContainer>
-        {data.map((info, i) => {
-          return <Contents key={i} data={info} />;
+        {data.map((data) => {
+          return <Contents key={data.id} data={data} />;
         })}
+
+        {loading ? <MockSet /> : null}
       </ContentsContainer>
+      {!loading ? (
+        <LoadMore ref={target}>scroll down to load more</LoadMore>
+      ) : null}
       <LoadMore onClick={onLoadMoreHandler}>LoadMore</LoadMore>
     </div>
   );

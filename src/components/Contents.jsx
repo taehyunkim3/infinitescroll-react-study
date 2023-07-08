@@ -1,5 +1,7 @@
 import React from "react";
 import { styled } from "styled-components";
+const NO_IMAGE =
+  "https://bestlifeonline.com/wp-content/uploads/sites/3/2022/12/small-dog-breeds.jpg?quality=82&strip=1&resize=800%2C450";
 
 const ItemBox = styled.div`
   grid-template-columns: 1fr;
@@ -37,16 +39,18 @@ const Description = styled.div`
 `;
 
 const Contents = ({ data }) => {
-  console.log(data);
+  const breed = data.breeds ? data.breeds[0] : null;
   return (
     <ItemBox>
-      <img src={data.url}></img>
+      <img src={data.url ? data.url : NO_IMAGE}></img>
       <Description>
-        <h2>{data.breeds[0].name}</h2>
-        <p>{data.breeds[0].bred_for}</p>
+        <h2>{breed ? breed.name : "Anonymous Dog"}</h2>
+        <p>{breed ? breed.bred_for : "Bred for unknown"}</p>
+        {/* <h2>{data.breeds[0].name || ""}</h2>
+        <p>{data.breeds[0].bred_for || ""}</p> */}
       </Description>
-      <p>{data.breeds[0].breed_group}</p>
-      <h6>{data.breeds[0].temperament}</h6>
+      <p>{breed ? breed.breed_group : "Breed group unknown"}</p>
+      <h6>{breed ? breed.temperament : "Temperament unknown "}</h6>
     </ItemBox>
   );
 };
